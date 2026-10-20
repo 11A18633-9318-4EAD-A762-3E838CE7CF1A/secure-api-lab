@@ -1,23 +1,43 @@
 name: CI Security Scan
-on: [push, pull_request]
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
 jobs:
   security:
+    name: security
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
-      - name: Install deps
+
+      - name: Install dependencies
         run: |
-          pip install bandit safety
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
-      - name: SAST (bandit)
-        run: bandit -r . -f json -o bandit-report.json || true
-      - name: SCA (safety)
-        run: safety check --output json > safety-report.json || true
-      - name: Upload reports
-        uses: actions/upload-artifact@v4
+          pip install bandit safety
+
+      - name: Run Bandit (SAST)
+        run: |
+          bandit -r . -f json -o bandit-report.json || true
+
+      - name: Run Safety (SCA)
+        run: |
+          safety check --output json > safety-report.json || true
+
+      - name: Upload security reports
+        uses: actions/upload-artifact@v6
         with:
           name: security-reports
-          path: "*-report.json"
+          path: |
+            bandit-report.json
+            safety-report.json
