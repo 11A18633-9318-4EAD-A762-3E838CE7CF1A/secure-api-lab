@@ -1,0 +1,7 @@
+venv/
+cve-2024-56201-lab/venv/
+cve-2024-56201-lab/venv-cve/
+__pycache__/
+*.pyc
+*.db
+vulhub/
